@@ -1,0 +1,23 @@
+# Memento — settings for this repository.
+#
+# These override the plugin-level defaults for every session in this repo, so a
+# preference only has to be stated once. Committed, like the rest of docs/ai/.
+
+# Language of the generated documents: session logs, PROJECT.md, LEARNINGS.md
+# and decision records. Write the language name, e.g. English, Spanish, Portugues.
+#
+# Frontmatter keys, status values, identifiers, file names and slugs stay in
+# English regardless — the framework reads those back. See the plugin's
+# reference/conventions.md, section 9.
+language: English
+
+# Kind of work this project is, which decides what gets surveyed, which sections
+# PROJECT.md carries, and what counts as a validated check.
+#
+#   code      applications, libraries, services, infrastructure
+#   analysis  pipelines, models, warehouses, metrics, reports
+#
+# A list, because real projects are mixed: a dbt repository is both. Order
+# decides the order of the PROJECT.md sections. Defaults to [code] if absent.
+# See reference/conventions.md, section 10.
+profile: [code]

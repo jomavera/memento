@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "jmvera-plugins",
+  "description": "Lightweight, reusable Claude Code plugins for working across code repositories.",
+  "owner": {
+    "name": "José Manuel Vera",
+    "email": "josemanuel.vera.aray@gmail.com"
+  },
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "memento",
+      "source": "./plugins/memento",
+      "displayName": "Memento: Lean Session Framework",
+      "description": "A two-command micro-framework that gives Claude Code a memory across sessions: /session-start agrees the objective and plans the stages, /session-close verifies the results and distills them into a cumulative knowledge base under docs/ai/. Plus /project-brief to read where things stand and /memento:doctor to audit the record. Profiles adapt it to software or to data work. Any project, any language.",
+      "version": "1.3.0",
+      "author": {
+        "name": "José Manuel Vera",
+        "email": "josemanuel.vera.aray@gmail.com"
+      },
+      "keywords": [
+        "session-log",
+        "traceability",
+        "knowledge-base",
+        "cumulative-knowledge",
+        "memory",
+        "lightweight-workflow",
+        "documentation",
+        "multilingual"
+      ],
+      "category": "workflow"
+    }
+  ]
+}
