@@ -1,5 +1,7 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "memento",
+  "description": "Memento: a lean session framework that gives Claude Code a memory across sessions, with a traceable log per session and a cumulative knowledge base under docs/ai/.",
   "owner": {
     "name": "José Manuel Vera",
     "email": "josemanuel.vera.aray@gmail.com"
@@ -25,7 +27,7 @@
         "documentation",
         "multilingual"
       ],
-      "category": "workflow"
+      "category": "productivity"
     }
   ]
 }

@@ -25,6 +25,23 @@ Two things fix that, and they are different things:
 This framework keeps them separate on purpose, and bridges them at exactly one
 point: session close.
 
+## Install
+
+Register this repository as a marketplace, once:
+
+```
+/plugin marketplace add jomavera/memento
+```
+
+Then install the plugin:
+
+```
+/plugin install memento@memento
+```
+
+The commands become available in every repository. To try it without
+installing, clone the repo and run `claude --plugin-dir ./memento`.
+
 ## The three commands
 
 | Command | When | What it does |
