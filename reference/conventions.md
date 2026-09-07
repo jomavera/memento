@@ -184,7 +184,7 @@ that runs out mid-session must not take the record with it.
 An `abandoned` session is a legitimate outcome and still gets closed properly —
 a dead end that nobody documented gets walked into twice.
 
-## 8. Git correlation
+## 8. Correlation — git, and the conversations behind the log
 
 Where the target repository is a git repository, record in the session
 frontmatter: `branch`, `base_commit` (HEAD at open), `end_commit` (HEAD at
@@ -193,6 +193,18 @@ objective to the actual code change.
 
 If git is unavailable or the commands fail, omit those fields and continue. The
 framework must work in a non-git directory; it just loses this correlation.
+
+`claude_session_ids` is a list, because a session may outlive several Claude
+Code conversations (§6). `/session-start` seeds it at open and appends on every
+resume, newest last. It exists for one job: when a conversation dies mid-stage,
+the record for the stage in flight was never written, and `claude --resume` on
+the last id is the only way to recover what was underway.
+
+Treat it as a **local recovery aid, not part of the knowledge base.** Unlike
+everything else under `docs/ai/`, it does not travel — transcripts live on one
+machine and expire after a retention period. An id that resolves to nothing on
+someone else's clone is expected, not corruption. Nothing in the framework reads
+this field back; no check depends on it.
 
 Never commit on the user's behalf unless they ask. At close, report the paths
 that changed and offer the command.

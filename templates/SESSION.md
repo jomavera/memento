@@ -5,7 +5,7 @@ date: <YYYY-MM-DD>
 closed: <YYYY-MM-DD or empty while active>
 status: active            # active | closed | abandoned
 objective: <one sentence, the outcome>
-claude_session_id: <${CLAUDE_SESSION_ID}>
+claude_session_ids: []    # [<${CLAUDE_SESSION_ID}>] — appended on each resume
 branch: <git branch, omit if not a git repository>
 base_commit: <short sha at open, omit if not a git repository>
 end_commit: <short sha at close, omit if not a git repository>

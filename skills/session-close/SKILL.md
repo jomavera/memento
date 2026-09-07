@@ -38,8 +38,12 @@ which sections `PROJECT.md` is supposed to carry.
 
 Go stage by stage through the log:
 
-- Did that stage's check actually run in this session? If yes, restate the
-  verdict you observed. If no, mark it `skipped` and say why.
+- Did that stage's check actually run **at any point in this session**, in this
+  conversation or an earlier one? A verdict already recorded in the log is
+  evidence: the log is the session's record, and a session may span several
+  conversations (§6). Restate what the log says. Mark a stage `skipped` when no
+  check ran at all, not merely because you did not personally watch it run.
+  What is forbidden is inventing a verdict, not inheriting one.
 - Where a check is cheap and repeatable, **re-run it now** — the commands in
   `PROJECT.md`, and for an `analysis` project the reconciliation queries. A green
   run at close is worth more than a green run from twenty turns ago, before three

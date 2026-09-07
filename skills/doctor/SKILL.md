@@ -102,7 +102,9 @@ involved:
 - fix a link whose target obviously moved, such as a promoted session folder;
 - normalise a machine-layer value that was translated, when the intended English
   value is unambiguous;
-- rename a non-portable slug, updating every link that points at it.
+- rename a non-portable slug, updating every link that points at it;
+- migrate a pre-1.4 `claude_session_id:` scalar to a `claude_session_ids:` list
+  holding the same single value.
 
 Never, even with `--fix`:
 
