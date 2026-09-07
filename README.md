@@ -64,6 +64,30 @@ Two more exist outside the work cycle. Neither is ever required:
 `/memento:doctor` needs its namespace: `/doctor` is one of Claude Code's own
 bundled commands and cannot be displaced.
 
+## A session is not a conversation
+
+A session here is a unit of *work with one objective*. A Claude Code
+conversation is a unit of *context*. They are independent, and the only rule
+tying anything down is per repository: **one `active` session at a time**.
+
+So both of these work:
+
+- **Several sessions in one conversation.** `/session-start`, work,
+  `/session-close`, then start another. The second finds no active session and
+  opens a fresh log with the next id.
+- **One session across several conversations.** This is what the during-session
+  protocol is built for. Stage records are written as each stage ends, never
+  batched, so a context window that runs out does not take the record with it.
+  Open a new conversation and run `/session-start` again: it finds the `active`
+  session and offers to resume it, close it, or abandon it.
+
+Match a session to an objective, not to a sitting. Where it is convenient,
+prefer a fresh conversation per session — the knowledge is meant to travel in
+`docs/ai/`, not in the context window, and a conversation still holding three
+closed sessions makes the briefing at `/session-start` theatre. The opposite
+case, one session spanning three conversations because the work is genuinely
+long, is the framework working as intended.
+
 ## What it produces, in the target repository
 
 ```
