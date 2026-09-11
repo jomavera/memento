@@ -29,9 +29,10 @@ What `/session-init` reads to seed `PROJECT.md`, in this order:
 <Only the non-obvious: why the structure is the way it is, where the seams are,
 what depends on what in a way the directory tree does not reveal.>
 
-## Conventions not already in CLAUDE.md
+## Conventions not already in the agent instructions
 
-<Project-specific patterns to follow. If CLAUDE.md already says it, link there.>
+<Project-specific patterns to follow. If `CLAUDE.md` or `AGENTS.md` already says
+it, link there.>
 ```
 
 ## What counts as a check

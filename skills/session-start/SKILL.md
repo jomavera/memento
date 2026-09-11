@@ -43,15 +43,17 @@ every path, identifier and rule below. Do not re-read it later in the session.
    Read that log in full — not just its `INDEX.md` row — and tell the user in
    three lines where it stood: its objective, which stages carry a record, and
    which stage is next. Then offer two choices:
-   - **Resume it.** Append `${CLAUDE_SESSION_ID}` to `claude_session_ids` if it
-     is not already the last entry, restate the objective and the done-when
-     conditions as the contract still in force, and continue at the first stage
-     with no record. Skip Phases 2–4 entirely — the log already exists, and a
-     second one for the same objective is the failure this check prevents. If
-     the in-flight stage's record is missing because a context window ended
-     mid-stage, say so and reconstruct it from the repository rather than
-     guessing; `claude --resume` on the last id in `claude_session_ids` can
-     recover the detail while that transcript still exists (§8).
+   - **Resume it.** Append this conversation's id — `${CLAUDE_SESSION_ID}` under
+     Claude Code, nothing at all under a harness that exposes none — to
+     `claude_session_ids` if it is not already the last entry, restate the
+     objective and the done-when conditions as the contract still in force, and
+     continue at the first stage with no record. Skip Phases 2–4 entirely — the
+     log already exists, and a second one for the same objective is the failure
+     this check prevents. If the in-flight stage's record is missing because a
+     context window ended mid-stage, say so and reconstruct it from the
+     repository rather than guessing; reopening the last conversation in
+     `claude_session_ids` can recover the detail while that transcript still
+     exists (§8).
    - **Close it**, by running `/session-close`. That is the only way to end a
      session, whether it finishes as `closed` or as `abandoned` — the verdict
      comes from the done-when conditions, not from the user's choice here, and
@@ -77,8 +79,8 @@ Turn the user's request into:
 Draft all three yourself from what the user said and the knowledge you just
 loaded. Then check in **once**:
 
-- If a reading is genuinely ambiguous in a way that changes the work, use
-  `AskUserQuestion` with the concrete alternatives.
+- If a reading is genuinely ambiguous in a way that changes the work, ask the
+  user to choose between the concrete alternatives — not an open question.
 - Otherwise show your draft and ask for confirmation or correction in one line.
 
 Do not interrogate the user. One round, then proceed.
@@ -111,9 +113,10 @@ Present the plan and get the user's go-ahead before writing.
    unchecked list, results and validation sections empty. Write it in the
    resolved language; keep the slug ASCII kebab-case and the machine layer
    English, per conventions §9.
-3. Seed `claude_session_ids` in the frontmatter with `${CLAUDE_SESSION_ID}`, so
-   a conversation that dies mid-stage can be recovered via `claude --resume`
-   (§8). Every later resume appends to this list.
+3. Seed `claude_session_ids` in the frontmatter with this conversation's id if
+   the harness exposes one — `${CLAUDE_SESSION_ID}` under Claude Code — so a
+   conversation that dies mid-stage can be recovered by reopening it (§8). Every
+   later resume appends to this list; where no id is available, leave it empty.
 4. Add the row to `INDEX.md`, newest first, status `active`.
 5. Report the log path and the first stage. Then start work.
 

@@ -18,9 +18,9 @@ disallowed-tools:
 Focus, if the user gave one: $ARGUMENTS
 
 This command reports. It does not write, does not open a session, and does not
-curate anything — `Write` and `Edit` are withheld for the duration so that
-guarantee holds. If the briefing reveals work worth doing, say so and let the
-user decide.
+curate anything — the write and edit tools are withheld for the duration so that
+guarantee holds structurally, not by good intentions. If the briefing reveals
+work worth doing, say so and let the user decide.
 
 ## 1. Gather
 
