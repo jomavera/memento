@@ -224,8 +224,7 @@ framework generates** follow a configured language, English by default.
 
 1. A language the user names for the work at hand.
 2. `language:` in the target repository's `docs/ai/config.yml`.
-3. The default document language configured for this installation, which each
-   command resolves for itself.
+3. The default document language given in the harness context, if any.
 4. English.
 
 `/session-init` writes (2), so a preference stated once holds for every later
