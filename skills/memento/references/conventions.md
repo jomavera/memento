@@ -35,7 +35,7 @@ docs/ai/
 
 `/session-close` is the only bridge between them: it distills session knowledge
 into project knowledge. Nothing else writes to `PROJECT.md` or `LEARNINGS.md` —
-`/project-brief` only reads, and `/memento:doctor` repairs structure but never
+`/project-brief` only reads, and the doctor command repairs structure but never
 content.
 
 ### Which file does a fact belong in?
@@ -194,17 +194,23 @@ objective to the actual code change.
 If git is unavailable or the commands fail, omit those fields and continue. The
 framework must work in a non-git directory; it just loses this correlation.
 
-`claude_session_ids` is a list, because a session may outlive several Claude
-Code conversations (§6). `/session-start` seeds it at open and appends on every
-resume, newest last. It exists for one job: when a conversation dies mid-stage,
-the record for the stage in flight was never written, and `claude --resume` on
-the last id is the only way to recover what was underway.
+`claude_session_ids` is a list, because a session may outlive several
+conversations (§6). `/session-start` seeds it at open and appends on every
+resume, newest last, using whatever conversation id the harness exposes. It
+exists for one job: when a conversation dies mid-stage, the record for the stage
+in flight was never written, and reopening that conversation — `claude --resume`
+on the last id under Claude Code — is the only way to recover what was underway.
 
 Treat it as a **local recovery aid, not part of the knowledge base.** Unlike
 everything else under `docs/ai/`, it does not travel — transcripts live on one
 machine and expire after a retention period. An id that resolves to nothing on
 someone else's clone is expected, not corruption. Nothing in the framework reads
 this field back; no check depends on it.
+
+A harness that exposes no conversation id to a command — opencode is one —
+leaves the list empty. The field keeps its name in every build so that one
+knowledge base can be worked on from either harness without a schema conflict;
+there, the per-stage records are the only recovery path.
 
 Never commit on the user's behalf unless they ask. At close, report the paths
 that changed and offer the command.
@@ -218,12 +224,12 @@ framework generates** follow a configured language, English by default.
 
 1. A language the user names for the work at hand.
 2. `language:` in the target repository's `docs/ai/config.yml`.
-3. The plugin's `document_language` user config, i.e. `${user_config.document_language}`.
+3. The default document language given in the harness context, if any.
 4. English.
 
 `/session-init` writes (2), so a preference stated once holds for every later
 session in that repository. Treat (3) as unset if it arrives empty or still
-reads as the literal `${user_config.document_language}`.
+reads as an unresolved placeholder rather than a language name.
 
 Where a repository's `docs/ai/` already contains documents, the language those
 documents are written in wins over (3) — never leave one knowledge base written
@@ -242,7 +248,7 @@ then carry on.
 
 Headings, table headers, and all written content in `PROJECT.md`,
 `LEARNINGS.md`, `sessions/*`, `decisions/*`, and the block added to the
-project's `CLAUDE.md`.
+project's agent instructions file.
 
 ### The machine layer — never translated
 
@@ -257,7 +263,7 @@ session recorded as `status: cerrado` is a session `/session-start` will find
 | Identifiers | `S001`, `L-0007`, `ADR-0003` |
 | File and folder names | `PROJECT.md`, `LEARNINGS.md`, `INDEX.md`, `decisions/`, `sessions/`, `config.yml` |
 | Inline knowledge flags | `→ LEARNING:`, `→ DECISION:`, `→ PROJECT:` |
-| `CLAUDE.md` markers | `<!-- memento:begin -->` |
+| Agent instruction block markers | `<!-- memento:begin -->` |
 | Quoted material | commands, code, paths, error output, user quotes |
 
 Slugs stay lower-case ASCII kebab-case with no accents or non-Latin characters,

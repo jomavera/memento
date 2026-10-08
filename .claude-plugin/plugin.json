@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "memento",
   "displayName": "Memento: Lean Session Framework",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "A lightweight micro-framework that gives Claude Code a memory across sessions in any project. Two commands carry the whole work cycle: /session-start agrees the objective, loads the accumulated project knowledge and plans the stages; /session-close verifies the results and distills them into a versioned knowledge base under docs/ai/ (session log, project map, learnings ledger, decision records). /session-init bootstraps a project once. Two read-only helpers keep it healthy: /project-brief summarises where the project stands, /memento:doctor audits the knowledge base for stale, broken or inconsistent records. Profiles adapt it to the kind of work — code for software, analysis for data pipelines, models and metrics, where a validated check means reconciliation rather than a passing test. Generated documents can be written in any language; English is the default.",
   "author": {
     "name": "José Manuel Vera",

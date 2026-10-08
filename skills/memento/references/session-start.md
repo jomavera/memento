@@ -1,0 +1,129 @@
+# session-start — open a traceable work session
+
+The objective as the user gave it is the argument in the harness context.
+
+Read `references/conventions.md` once, now. It defines every path, identifier
+and rule below. Do not re-read it later in the session.
+
+## Phase 1 — Load
+
+1. If `docs/ai/` does not exist, run the `/session-init`
+   procedure inline first, then continue. Do not stop to ask.
+2. Read `docs/ai/config.yml`. It gives two things:
+   - the **document language** (§9): this file, else the default from the
+     harness context, else English. Everything written to `docs/ai/` uses it,
+     with the machine
+     layer from §9 staying English.
+   - the **profile** (§10), defaulting to `[code]` if absent. Read
+     `references/profile-<name>.md` for each active one —
+     only those. Its evidence vocabulary is what Phase 3 plans against.
+3. Read `docs/ai/PROJECT.md` in full.
+4. Read `docs/ai/LEARNINGS.md` under the budget in §3 of the conventions.
+5. Read `docs/ai/sessions/INDEX.md`. Open the one or two past logs whose
+   objectives touch this one — no more.
+6. Read the ADRs in `docs/ai/decisions/` that govern the area about to be
+   touched, via the index in `decisions/README.md`.
+7. If a session is already `active`, stop. Never open a second active session.
+   Read that log in full — not just its `INDEX.md` row — and tell the user in
+   three lines where it stood: its objective, which stages carry a record, and
+   which stage is next. Then offer two choices:
+   - **Resume it.** Append this conversation's id to `claude_session_ids` if the
+     harness context gives one and it is not already the last entry, restate the
+     objective and the done-when conditions as the contract still in force, and
+     continue at the first stage with no record. Skip Phases 2–4 entirely — the
+     log already exists, and a second one for the same objective is the failure
+     this check prevents. If the in-flight stage's record is missing because a
+     context window ended mid-stage, say so and reconstruct it from the
+     repository rather than guessing; reopening the last conversation in
+     `claude_session_ids` can recover the detail while that transcript still
+     exists (§8).
+   - **Close it**, by running `/session-close`. That is the only way to end a
+     session, whether it finishes as `closed` or as `abandoned` — the verdict
+     comes from the done-when conditions, not from the user's choice here, and
+     abandoning still earns a Handoff and a distillation pass (§7).
+8. If the repository is a git repository, capture the branch and HEAD.
+
+Then, in **at most five lines**, tell the user what the accumulated knowledge
+says that bears on this objective — relevant learnings, governing decisions,
+open questions it might answer. If nothing bears on it, say so in one line.
+This is the payoff of the whole framework; do not skip it, and do not pad it.
+
+## Phase 2 — Agree the objective
+
+The objective is a contract, and a vague one produces a worthless log.
+
+Turn the user's request into:
+
+- **one sentence** naming the outcome, not the activity
+  — "cut the nightly load below 15 min", not "look at performance";
+- **done when** — one to three checkable conditions;
+- **not doing** — anything adjacent the user might assume is included.
+
+Draft all three yourself from what the user said and the knowledge you just
+loaded. Then check in **once**:
+
+- If a reading is genuinely ambiguous in a way that changes the work, ask the
+  user to choose between the concrete alternatives — not an open question.
+- Otherwise show your draft and ask for confirmation or correction in one line.
+
+Do not interrogate the user. One round, then proceed.
+
+If the objective needs more than about seven stages, say so and propose splitting
+it across sessions — that is a finding, not an obstacle.
+
+## Phase 3 — Plan the stages
+
+Propose 3–7 stages. Each one gets:
+
+- a short imperative name;
+- one deliverable;
+- **one check** that decides whether it worked, drawn from the active profile's
+  evidence vocabulary. It must be able to fail: name what would have made it
+  come out the other way. A stage whose check is "looks right" has no check —
+  find a real one, or merge the stage into its neighbour. If a stage genuinely
+  admits no failable check, say so out loud rather than inventing one.
+
+Order them so the riskiest assumption is tested earliest. Say which stage is
+the risky one and what happens to the plan if it fails.
+
+Present the plan and get the user's go-ahead before writing.
+
+## Phase 4 — Write the log
+
+1. Assign the next session ID from `INDEX.md` (conventions §2).
+2. Create `docs/ai/sessions/YYYY-MM-DD-S<NNN>-<slug>.md` from
+   `assets/SESSION.md`, `status: active`, stages as an
+   unchecked list, results and validation sections empty. Write it in the
+   resolved language; keep the slug ASCII kebab-case and the machine layer
+   English, per conventions §9.
+3. Seed `claude_session_ids` in the frontmatter with this conversation's id if
+   the harness context gives one, so a conversation that dies mid-stage can be
+   recovered by reopening it (§8). Every later resume appends to this list;
+   where no id is available, leave it empty.
+4. Add the row to `INDEX.md`, newest first, status `active`.
+5. Report the log path and the first stage. Then start work.
+
+---
+
+## During the session — keep this protocol until `/session-close`
+
+- **Write each stage's record when that stage ends**, into the session log, in
+  the session's document language. Never batch to the end: a context window that
+  runs out must not take the record with it. Status, result, validation verdict,
+  surprises — 3–8 lines, per conventions §6.
+- **Run the check.** A stage is `done` only if its check ran and passed.
+  Not run → `skipped` with the reason. Failed → `failed` with the output.
+  Never write a verdict you did not observe.
+- **Plan changes go in the log, not around it.** Adding, dropping or reordering
+  a stage is fine; do it explicitly in the log with a one-line why.
+- **Flag knowledge inline as you hit it**, in the stage's notes:
+  - `→ LEARNING:` something non-obvious that will apply again
+  - `→ DECISION:` a choice that rejected a real alternative
+  - `→ PROJECT:` a durable fact about the project that changed
+  These are candidates; `/session-close` judges them against the promotion
+  tests. Flag on the generous side, promote on the strict side.
+- **Do not touch `PROJECT.md`, `LEARNINGS.md` or `decisions/` mid-session.**
+  Distillation is `/session-close`'s job, once, with the full session in view.
+- If the objective turns out to be wrong or unreachable, say so and stop. A
+  session that gets abandoned with a clear reason is a good outcome; one that
+  quietly drifts to a different objective is not.

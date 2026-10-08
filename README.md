@@ -132,8 +132,8 @@ easily: "the query ran" is not a check, because bad SQL returns a confident
 wrong answer instead of an error; "4.182.331.220 in the report vs 4.182.331.220
 in the ERP" is, because the two numbers might not have matched.
 
-Adding a profile means writing one file under `reference/profiles/` with those
-three sections. Nothing in the core changes.
+Adding a profile means writing one file under `skills/memento/references/` with
+those three sections. Nothing in the core changes.
 
 ## Language
 
@@ -197,28 +197,54 @@ human one should not have to scroll past instructions addressed to the other.
 memento/
 ├── .claude-plugin/plugin.json
 ├── skills/
-│   ├── session-init/SKILL.md
+│   ├── memento/                    The canonical bundle — everything lives here.
+│   │   ├── SKILL.md
+│   │   ├── references/
+│   │   │   ├── conventions.md      Paths, ids, budgets, promotion tests, language.
+│   │   │   ├── profile-code.md     Survey, PROJECT.md sections, evidence vocabulary.
+│   │   │   ├── profile-analysis.md
+│   │   │   ├── session-init.md     The five procedures.
+│   │   │   ├── session-start.md
+│   │   │   ├── session-close.md
+│   │   │   ├── project-brief.md
+│   │   │   └── doctor.md
+│   │   └── assets/
+│   │       ├── PROJECT.md   LEARNINGS.md   SESSION.md   ADR.md
+│   │       ├── sessions-INDEX.md   decisions-README.md
+│   │       ├── config.yml
+│   │       └── AGENTS-section.md
+│   ├── session-init/SKILL.md       Thin wrappers: one slash command each.
 │   ├── session-start/SKILL.md
 │   ├── session-close/SKILL.md
 │   ├── project-brief/SKILL.md
 │   └── doctor/SKILL.md
-├── reference/
-│   ├── conventions.md      Paths, ids, budgets, writing rules, promotion tests, language.
-│   └── profiles/
-│       ├── code.md         Survey, PROJECT.md sections, evidence vocabulary.
-│       └── analysis.md
-└── templates/
-    ├── PROJECT.md   LEARNINGS.md   SESSION.md   ADR.md
-    ├── sessions-INDEX.md   decisions-README.md
-    ├── config.yml
-    └── CLAUDE-section.md
+└── opencode/                       The opencode build. See opencode/README.md.
 ```
 
-The skills stay short because they are loaded into context; `conventions.md` and
-the templates are read only when needed.
+`skills/memento/` is a canonical [Agent Skills](https://agentskills.io) bundle:
+every path inside it is relative to the bundle root and there are no variables
+to substitute, so it drops into any skills-compatible agent unchanged.
 
-To change how the framework behaves, edit `reference/conventions.md` — the
-skills defer to it rather than restating the rules.
+The five wrappers exist because the bundle is deliberately harness-agnostic.
+Each one supplies a short **harness context** block — the user's argument, the
+default document language, a conversation id — and then points at its procedure.
+That is the only place anything harness-specific lives, which is what lets the
+same bundle serve Claude Code and opencode without a fork.
+
+To change how the framework behaves, edit
+`skills/memento/references/conventions.md` — every procedure defers to it rather
+than restating the rules.
+
+## Other harnesses
+
+Beyond Claude Code, `opencode/install.sh` generates an opencode build: the
+bundle copied verbatim, plus five commands and a read-only agent. See
+[opencode/README.md](opencode/README.md).
+
+For any other skills-compatible agent — Cursor, Codex, Copilot, Gemini CLI and
+the rest — copy `skills/memento/` into that tool's skills directory, or into the
+cross-tool `.agents/skills/` convention. It works as-is; without a harness
+context block it simply treats every such value as unset.
 
 ## Prior art
 

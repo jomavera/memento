@@ -4,7 +4,7 @@
 technology — the point.>
 
 <!-- Profile sections go here, in the order the profiles are listed in
-     config.yml. See reference/profiles/<name>.md. -->
+     config.yml. See references/profile-<name>.md. -->
 
 ## Commands
 
