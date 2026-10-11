@@ -8,7 +8,10 @@ and rule below. Do not re-read it later in the session.
 ## Phase 1 — Load
 
 1. If `docs/ai/` does not exist, run the `/session-init`
-   procedure inline first, then continue. Do not stop to ask.
+   procedure inline first, then continue — unless the repository also has no
+   code yet and the user is still deciding what to build. That is not a
+   session to open; suggest `/session-discover` instead and stop. Do not stop
+   to ask in the normal case.
 2. Read `docs/ai/config.yml`. It gives two things:
    - the **document language** (§9): this file, else the default from the
      harness context, else English. Everything written to `docs/ai/` uses it,

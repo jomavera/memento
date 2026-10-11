@@ -1,5 +1,10 @@
 # session-init — bootstrap Memento in a repository
 
+This procedure bootstraps from code that already exists. If the repository
+has no code yet and the user wants to figure out what to build first, point
+them at `/session-discover` instead — it bootstraps the same structure and
+then designs; this procedure only maps what is already there.
+
 Read `references/conventions.md` before doing anything. It defines every path,
 identifier and rule used below.
 
