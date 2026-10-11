@@ -7,13 +7,16 @@
 # substitute. So it copies across verbatim — this script ports nothing.
 #
 # What differs by harness is supplied as a short "harness context" block, which
-# is all these generated commands are: five thin wrappers around the procedures
+# is all these generated commands are: six thin wrappers around the procedures
 # in the bundle. The Claude Code plugin does the same thing in skills/<name>/.
 #
 # Writes:
-#   <config>/skill/memento/     the bundle, verbatim
-#   <config>/command/<name>.md  one thin wrapper per procedure
-#   <config>/agent/memento-brief.md
+#   <config>/skills/memento/     the bundle, verbatim
+#   <config>/commands/<name>.md  one thin wrapper per procedure
+#
+# The read-only guarantee behind /project-brief needs no custom agent: the
+# generated project-brief command sets `agent: explore` in its frontmatter,
+# delegating to opencode's built-in read-only subagent.
 #
 # <config> is $OPENCODE_CONFIG_DIR, else ~/.config/opencode. Note that this is
 # NOT ~/.opencode, which opencode ignores for configuration.
@@ -29,6 +32,7 @@ DRY_RUN=0
 # Claude Code skill directory : opencode command name. opencode commands are
 # flat, so the /memento:doctor namespace collapses to a prefixed name.
 COMMANDS=(
+  "session-discover:session-discover"
   "session-init:session-init"
   "session-start:session-start"
   "session-close:session-close"
@@ -38,7 +42,7 @@ COMMANDS=(
 
 agent_for() {
   case "$1" in
-    project-brief) echo "memento-brief" ;;
+    project-brief) echo "explore" ;;
     *) echo "" ;;
   esac
 }
@@ -49,7 +53,7 @@ harness_context() {
   echo "Harness context:"
   echo "- Argument: \$ARGUMENTS"
   case "$skill" in
-    session-init|session-start|session-close)
+    session-discover|session-init|session-start|session-close)
       echo "- Default document language: $LANGUAGE" ;;
   esac
   if [ "$skill" = "session-start" ]; then
@@ -84,7 +88,7 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-BUNDLE="$CONFIG_DIR/skill/memento"
+BUNDLE="$CONFIG_DIR/skills/memento"
 GENERATED=()
 
 # ---------------------------------------------------------------------------
@@ -114,6 +118,22 @@ if [ "$DRY_RUN" -eq 0 ] && [ -d "$BUNDLE" ]; then
   rm -rf "$BUNDLE"
 fi
 
+# V1 used singular directories (skill/, command/, agent/); V2 still discovers
+# them, so remove migrated legacy copies to avoid duplicate definitions.
+# The custom memento-brief agent is gone (project-brief now uses the built-in
+# explore agent), so remove any copy a previous install left behind.
+if [ "$DRY_RUN" -eq 0 ]; then
+  legacy_bundle="$CONFIG_DIR/skill/memento"
+  [ "$legacy_bundle" != "$BUNDLE" ] && [ -d "$legacy_bundle" ] && rm -rf "$legacy_bundle"
+  for entry in "${COMMANDS[@]}"; do
+    legacy_out="$CONFIG_DIR/command/${entry##*:}.md"
+    [ "$legacy_out" != "$CONFIG_DIR/commands/${entry##*:}.md" ] && [ -f "$legacy_out" ] && rm -f "$legacy_out"
+  done
+  legacy_agent="$CONFIG_DIR/agent/memento-brief.md"
+  [ "$legacy_agent" != "$CONFIG_DIR/agents/memento-brief.md" ] && [ -f "$legacy_agent" ] && rm -f "$legacy_agent"
+  rm -f "$CONFIG_DIR/agents/memento-brief.md"
+fi
+
 while IFS= read -r rel; do
   GENERATED+=("$BUNDLE/$rel")
   [ "$DRY_RUN" -eq 1 ] && continue
@@ -125,7 +145,7 @@ for entry in "${COMMANDS[@]}"; do
   skill="${entry%%:*}"
   command="${entry##*:}"
   src="$SRC/skills/$skill/SKILL.md"
-  out="$CONFIG_DIR/command/$command.md"
+  out="$CONFIG_DIR/commands/$command.md"
 
   [ -f "$src" ] || { echo "missing wrapper source: $src" >&2; exit 1; }
 
@@ -152,23 +172,11 @@ for entry in "${COMMANDS[@]}"; do
     echo "\`references/...\` or \`assets/...\` are relative to the bundle root above."
     if [ "$skill" = "project-brief" ]; then
       echo
-      echo "This reports and never writes; the \`memento-brief\` agent withholds the"
-      echo "write, edit and patch tools so that guarantee holds structurally."
+      echo "This reports and never writes; it runs under opencode's built-in"
+      echo "\`explore\` subagent (read-only, cannot modify files), so that"
+      echo "guarantee holds structurally."
     fi
   } > "$out"
-done
-
-for entry in "${COMMANDS[@]}"; do
-  agent="$(agent_for "${entry%%:*}")"
-  [ -n "$agent" ] || continue
-  src="$SRC/opencode/agent/$agent.md"
-  [ -f "$src" ] || { echo "missing agent source: $src" >&2; exit 1; }
-  out="$CONFIG_DIR/agent/$agent.md"
-  GENERATED+=("$out")
-  if [ "$DRY_RUN" -eq 0 ]; then
-    mkdir -p "$(dirname "$out")"
-    cp "$src" "$out"
-  fi
 done
 
 # ---------------------------------------------------------------------------

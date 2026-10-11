@@ -12,6 +12,8 @@ Everything lives in the **target repository** (the one being worked on), under
 docs/ai/
 ├── config.yml                          Per-repository framework settings (§9).
 ├── PROJECT.md                          Curated map of the project as it is now.
+├── DESIGN.md                           Approved design, only when seeded by
+│                                       `/session-discover` on a greenfield project.
 ├── LEARNINGS.md                        Append-only ledger of durable discoveries.
 ├── decisions/
 │   ├── README.md                       One-line index of the ADRs.
@@ -33,8 +35,10 @@ docs/ai/
 | Mutability | Frozen once closed | Curated and rewritten as reality changes |
 | Answers | "What happened in S007 and why?" | "What do I need to know before touching this?" |
 
-`/session-close` is the only bridge between them: it distills session knowledge
-into project knowledge. Nothing else writes to `PROJECT.md` or `LEARNINGS.md` —
+`/session-close` is the bridge between them: it distills session knowledge
+into project knowledge. `/session-init` creates the empty structure and
+`/session-discover` seeds it from an approved design. Nothing else writes to
+`PROJECT.md`, `DESIGN.md` or `LEARNINGS.md` —
 `/project-brief` only reads, and the doctor command repairs structure but never
 content.
 

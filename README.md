@@ -1,7 +1,7 @@
 # Memento — a lean session framework
 
-A micro-framework for working with Claude Code in any project, with two
-commands. Each session gets a traceable log; each closed session feeds a
+A micro-framework for working with a coding agent in any project, with a small
+set of commands. Each session gets a traceable log; each closed session feeds a
 cumulative knowledge base that makes the next session start smarter.
 
 It is not only for code. A profile adapts it to software or to data work, and
@@ -9,7 +9,7 @@ the part that changes is what counts as proof that a stage actually worked.
 
 ## Why
 
-Claude Code sessions are stateless. Everything worked out in one session — the
+Agent sessions are stateless. Everything worked out in one session — the
 gotcha that cost an hour, the alternative that turned out to be a dead end, the
 exact command that actually works — is gone when the session ends, and the next
 session pays for it again. Hence the name: an agent that cannot form new
@@ -27,6 +27,11 @@ point: session close.
 
 ## Install
 
+The same procedures run on every harness; pick yours. The commands become
+available in every repository.
+
+### Claude Code
+
 Register this repository as a marketplace, once:
 
 ```
@@ -39,14 +44,31 @@ Then install the plugin:
 /plugin install memento@memento
 ```
 
-The commands become available in every repository. To try it without
-installing, clone the repo and run `claude --plugin-dir ./memento`.
+To try it without installing, clone the repo and run
+`claude --plugin-dir ./memento`.
 
-## The three commands
+### opencode
+
+```sh
+./opencode/install.sh                    # install
+./opencode/install.sh --language Spanish # set the default document language
+```
+
+Restart opencode afterwards — config is read once at startup. See
+[opencode/README.md](opencode/README.md).
+
+### Any other skills-compatible agent
+
+Copy `skills/memento/` into that tool's skills directory, or into the
+cross-tool `.agents/skills/` convention. It works as-is; without a harness
+context block it simply treats every such value as unset.
+
+## The commands
 
 | Command | When | What it does |
 |---|---|---|
-| `/session-init` | Once per repository | Creates `docs/ai/`, sets the document language, seeds `PROJECT.md` from what the repo already documents, registers the convention in `CLAUDE.md`. |
+| `/session-discover` | Greenfield: no code yet | Aligns on the problem and scope, evaluates options, records the approved design in `docs/ai/DESIGN.md` and seeds `PROJECT.md`. Replaces `/session-init` on this path. |
+| `/session-init` | Once per repository with existing code | Creates `docs/ai/`, sets the document language, seeds `PROJECT.md` from what the repo already documents, registers the convention in the agent instructions file (`AGENTS.md`, or `CLAUDE.md` where present). |
 | `/session-start` | Before substantial work | Loads the knowledge base, tells you what bears on your objective, agrees the objective and done-when conditions, plans 3–7 stages, opens the log. |
 | `/session-close` | Before ending work | Re-runs the checks, finishes the log honestly, distills learnings and decisions, curates `PROJECT.md`, updates the index. |
 
@@ -58,16 +80,18 @@ Two more exist outside the work cycle. Neither is ever required:
 
 | Command | When | What it does |
 |---|---|---|
-| `/project-brief` | Picking a repository back up, or handing it to someone | Reads the knowledge base and answers "where does this stand?" in the terminal. Writes nothing — `Write` and `Edit` are withheld while it runs, so that is a guarantee, not a promise. |
+| `/project-brief` | Picking a repository back up, or handing it to someone | Reads the knowledge base and answers "where does this stand?" in the terminal. Writes nothing — enforced structurally, so that is a guarantee, not a promise. |
 | `/memento:doctor` | Occasionally, or when something looks off | Audits the knowledge base: dangling sessions, broken links, duplicate ids, a translated machine layer, files gone stale or over budget. `--fix` applies only the mechanical repairs. |
 
-`/memento:doctor` needs its namespace: `/doctor` is one of Claude Code's own
-bundled commands and cannot be displaced.
+The doctor command is namespaced per harness: `/memento:doctor` on Claude
+Code (`/doctor` is one of Claude Code's own bundled commands and cannot be
+displaced), `/memento-doctor` on opencode, whose commands are flat and have
+no `:` namespace.
 
 ## A session is not a conversation
 
-A session here is a unit of *work with one objective*. A Claude Code
-conversation is a unit of *context*. They are independent, and the only rule
+A session here is a unit of *work with one objective*. A conversation
+is a unit of *context*. They are independent, and the only rule
 tying anything down is per repository: **one `active` session at a time**.
 
 So both of these work:
@@ -94,6 +118,8 @@ long, is the framework working as intended.
 docs/ai/
 ├── config.yml                          Settings for this repo, e.g. document language.
 ├── PROJECT.md                          Current map of the project. ~200 lines, hard cap.
+├── DESIGN.md                           Approved design — only on greenfield projects,
+│                                       seeded by `/session-discover`.
 ├── LEARNINGS.md                        Append-only ledger of durable discoveries.
 ├── decisions/
 │   ├── README.md                       ADR index.
@@ -138,17 +164,18 @@ those three sections. Nothing in the core changes.
 ## Language
 
 Generated documents are in **English by default**, and can be in any language.
-Three levels, most specific first:
+Levels, most specific first:
 
 | Level | Where | Scope |
 |---|---|---|
 | This request | Name it when you run `/session-init "Spanish"`, or just say so | One-off |
 | This repository | `language:` in `docs/ai/config.yml` | Every session in the repo |
-| This machine | `document_language` in the plugin's settings (`/plugin`) | Default for new repos |
+| This machine (Claude Code) | `document_language` in the plugin's settings (`/plugin`) | Default for new repos |
+| This machine (opencode) | `--language` flag to `opencode/install.sh` | Default for new repos |
 
 What the setting does **not** touch:
 
-- **The conversation.** Talk to Claude in any language; that is independent.
+- **The conversation.** Talk to the agent in any language; that is independent.
   A Spanish conversation producing English documents is a valid setup.
 - **The machine layer.** Frontmatter keys, status values (`active`, `closed`,
   `done`, `skipped`, …), identifiers (`S001`, `L-0007`), file names and slugs
@@ -191,10 +218,10 @@ what a person came to read; the rules about how the file is maintained sit in
 to an agent that opens the file. These documents have two audiences, and the
 human one should not have to scroll past instructions addressed to the other.
 
-## Layout of this plugin
+## Layout of this repository
 
 ```
-memento/
+./
 ├── .claude-plugin/plugin.json
 ├── skills/
 │   ├── memento/                    The canonical bundle — everything lives here.
@@ -203,17 +230,19 @@ memento/
 │   │   │   ├── conventions.md      Paths, ids, budgets, promotion tests, language.
 │   │   │   ├── profile-code.md     Survey, PROJECT.md sections, evidence vocabulary.
 │   │   │   ├── profile-analysis.md
-│   │   │   ├── session-init.md     The five procedures.
+│   │   │   ├── session-discover.md The six procedures.
+│   │   │   ├── session-init.md
 │   │   │   ├── session-start.md
 │   │   │   ├── session-close.md
 │   │   │   ├── project-brief.md
 │   │   │   └── doctor.md
 │   │   └── assets/
-│   │       ├── PROJECT.md   LEARNINGS.md   SESSION.md   ADR.md
+│   │       ├── PROJECT.md   LEARNINGS.md   SESSION.md   ADR.md   DESIGN.md
 │   │       ├── sessions-INDEX.md   decisions-README.md
 │   │       ├── config.yml
 │   │       └── AGENTS-section.md
-│   ├── session-init/SKILL.md       Thin wrappers: one slash command each.
+│   ├── session-discover/SKILL.md  Thin wrappers: one slash command each.
+│   ├── session-init/SKILL.md
 │   ├── session-start/SKILL.md
 │   ├── session-close/SKILL.md
 │   ├── project-brief/SKILL.md
@@ -225,30 +254,34 @@ memento/
 every path inside it is relative to the bundle root and there are no variables
 to substitute, so it drops into any skills-compatible agent unchanged.
 
-The five wrappers exist because the bundle is deliberately harness-agnostic.
+The six wrappers exist because the bundle is deliberately harness-agnostic.
 Each one supplies a short **harness context** block — the user's argument, the
 default document language, a conversation id — and then points at its procedure.
 That is the only place anything harness-specific lives, which is what lets the
-same bundle serve Claude Code and opencode without a fork.
+same bundle serve every harness without a fork.
 
 To change how the framework behaves, edit
 `skills/memento/references/conventions.md` — every procedure defers to it rather
 than restating the rules.
 
-## Other harnesses
+## Harnesses
 
-Beyond Claude Code, `opencode/install.sh` generates an opencode build: the
-bundle copied verbatim, plus five commands and a read-only agent. See
-[opencode/README.md](opencode/README.md).
+`skills/memento/` is the canonical bundle and the single source of truth.
+Each supported harness is a thin front end over it: six wrappers that supply
+the harness context block and point at the procedures. No procedure is ever
+forked per harness.
 
-For any other skills-compatible agent — Cursor, Codex, Copilot, Gemini CLI and
-the rest — copy `skills/memento/` into that tool's skills directory, or into the
-cross-tool `.agents/skills/` convention. It works as-is; without a harness
-context block it simply treats every such value as unset.
+- **Claude Code** — this repository *is* the plugin. `skills/<name>/SKILL.md`
+  fills the context from `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_SESSION_ID}` and
+  the plugin's user config.
+- **opencode** — `opencode/install.sh` generates the build: the bundle copied
+  verbatim, plus six commands (`/project-brief` runs under the built-in
+  `explore` agent). See
+  [opencode/README.md](opencode/README.md).
 
 ## Prior art
 
-The split between stable configuration (`CLAUDE.md`), evolving discoveries
+The split between stable configuration (`AGENTS.md` / `CLAUDE.md`), evolving discoveries
 (`LEARNINGS.md`) and point-in-time decisions (ADRs) follows the learnings-loop
 and memory-bank patterns and Nygard's decision records. The staged plan with an
 explicit check per stage borrows from spec-driven approaches such as GitHub Spec

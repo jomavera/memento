@@ -12,8 +12,8 @@ that is harness-agnostic by construction. This directory builds an
 ```
 
 Restart opencode afterwards — config is read once at startup and is not
-hot-reloaded. Then `/session-start`, `/session-close`, `/session-init`,
-`/project-brief` and `/memento-doctor` are available.
+hot-reloaded. Then `/session-discover`, `/session-start`, `/session-close`,
+`/session-init`, `/project-brief` and `/memento-doctor` are available.
 
 ## What gets installed
 
@@ -22,11 +22,10 @@ which opencode ignores for configuration:
 
 | Path | What |
 |---|---|
-| `skill/memento/` | The bundle, copied verbatim |
-| `command/<name>.md` | One thin wrapper per procedure, five in total |
-| `agent/memento-brief.md` | Read-only agent behind `/project-brief` |
+| `skills/memento/` | The bundle, copied verbatim |
+| `commands/<name>.md` | One thin wrapper per procedure, six in total |
 
-`skill/memento/` is a **build artifact**: re-run the installer after editing
+`skills/memento/` is a **build artifact**: re-run the installer after editing
 `skills/memento/`, and never edit the installed copy.
 
 ## How it works
@@ -48,7 +47,7 @@ Harness context:
 - Default document language: English
 - Conversation id: opencode exposes none to a command, so leave
   `claude_session_ids` empty (conventions §8)
-- Bundle root: `/home/you/.config/opencode/skill/memento`
+- Bundle root: `/home/you/.config/opencode/skills/memento`
 
 Follow `<bundle>/references/session-start.md` in full. ...
 ```
@@ -70,12 +69,20 @@ bundle whose paths silently do not resolve.
 A skill folder is opencode's native home for resource files: its loader lists
 every file under a skill's directory and hands the model that list along with
 the directory path. It also earns a permission — opencode automatically grants
-every agent `external_directory` access to `skill/memento/*`, so commands read
+every agent `external_directory` access to `skills/memento/*`, so commands read
 the bundle without a prompt. A folder anywhere else would be asked about on
 every session.
 
 It also means `/memento` itself is available in opencode as a reference skill,
 for questions about how `docs/ai/` is structured.
+
+## Greenfield projects
+
+`/session-discover` is the entry point when there is no code yet. It
+bootstraps `docs/ai/` itself — including this bundle's copy — so on that path
+there is no separate init step: discover first, then `/session-start` on the
+design's build-order slices. `/session-init` remains the entry point for
+repositories that already have code.
 
 ## What differs from the Claude Code build
 
@@ -86,12 +93,18 @@ things could not carry across.
 have no `:` namespace.
 
 **Tool restrictions are dropped, except one.** opencode command frontmatter
-accepts only `description`, `agent`, `model`, `variant` and `subtask`, so the
+accepts `description`, `agent`, `model` (with an optional `#variant` suffix)
+and `subagent` (`subtask` remains accepted as a deprecated alias), so the
 `allowed-tools` the Claude wrappers declare have no equivalent. The restriction
 that carried a guarantee — `/project-brief` never writing — is restored by
-running that command under the `memento-brief` agent, which denies `edit`,
-`write`, `apply_patch` and `task` and allows only read-only `git` through
-`bash`. The others were advisory and are simply gone.
+setting `agent: explore` in that command's frontmatter, delegating to
+opencode's built-in read-only `explore` subagent. The others were advisory and
+are simply gone.
+
+No custom agent is shipped: per the [Agent Skills spec](https://agentskills.io),
+`SKILL.md` frontmatter only recognises `name`, `description`, `license`,
+`compatibility` and `metadata`, so the agent binding lives in the generated
+command's frontmatter, not in the bundle.
 
 **`claude_session_ids` is always empty.** opencode exposes no conversation id to
 a command, so the harness context says so and the procedure leaves the list
