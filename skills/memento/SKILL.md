@@ -25,7 +25,8 @@ Run these, in this order, per unit of work:
 
 | Procedure | When |
 |---|---|
-| `references/session-init.md` | Once per repository, to create `docs/ai/`. |
+| `references/session-discover.md` | Greenfield entry point: no code yet. Aligns on the design, records it in `DESIGN.md`, seeds `PROJECT.md`. Replaces `session-init` on this path. |
+| `references/session-init.md` | Once per repository with existing code, to create `docs/ai/`. |
 | `references/session-start.md` | Open a session: load the knowledge, agree the objective, plan the stages. |
 | `references/session-close.md` | Verify each stage's check, finish the log, distil what is durable. |
 | `references/project-brief.md` | Read-only briefing. Writes nothing. Any time. |
@@ -46,7 +47,7 @@ decide. `project-brief` and `doctor` are safe to offer freely.
 | `references/conventions.md` | Layout, identifiers, promotion tests, correlation, language rules, profiles. Read it before any procedure. |
 | `references/profile-code.md` | What to survey and what counts as a check, for software work. |
 | `references/profile-analysis.md` | The same, for data pipelines, models and metrics, where a validated check means reconciliation rather than a passing test. |
-| `assets/` | The documents the framework creates: `SESSION.md`, `PROJECT.md`, `LEARNINGS.md`, `ADR.md`, `config.yml`, the index and README seeds, and `AGENTS-section.md`. |
+| `assets/` | The documents the framework creates: `SESSION.md`, `PROJECT.md`, `DESIGN.md`, `LEARNINGS.md`, `ADR.md`, `config.yml`, the index and README seeds, and `AGENTS-section.md`. |
 
 All paths in this bundle are relative to the bundle root — the directory holding
 this `SKILL.md`. There are no variables to substitute.
